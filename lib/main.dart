@@ -1,7 +1,7 @@
+import 'package:fintrack/features/auth/presentation/login_page.dart';
 import 'package:flutter/material.dart';
+// Import AppTheme yang baru
 import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/login_page.dart';
-import 'features/auth/presentation/register_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,11 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // Menggunakan tema yang sudah didefinisikan
       theme: AppTheme.light,
-      routes: {
-        '/': (_) => const LoginPage(),
-        '/register': (_) => const RegisterPage(),
-      },
+      home: const LoginPage(),
     );
   }
 }
