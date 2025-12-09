@@ -1,4 +1,4 @@
-import 'package:fintrack/features/auth/presentation/home_page.dart';
+import 'package:fintrack/features/home/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 // Sesuaikan path import
 import 'register_page.dart';
