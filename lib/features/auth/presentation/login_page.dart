@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 180,
                   height: 180,
                   decoration: BoxDecoration(
-                    color: AppColor.primary.withOpacity(0.1),
+                    color: AppColor.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       "ATAU",
                       style: TextStyle(
-                        color: AppColor.textSecondary.withOpacity(0.6),
+                        color: AppColor.textSecondary.withValues(alpha: .6),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),

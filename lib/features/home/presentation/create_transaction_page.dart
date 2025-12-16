@@ -166,7 +166,7 @@ class _CreatePageState extends State<CreatePage> {
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   selected: _selectedType == TransactionType.expense,
-                  selectedColor: AppColor.error.withOpacity(0.1),
+                  selectedColor: AppColor.error.withValues(alpha: .1),
                   onSelected: (selected) {
                     if (selected) {
                       setState(() {
