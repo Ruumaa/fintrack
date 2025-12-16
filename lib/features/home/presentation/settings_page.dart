@@ -6,7 +6,7 @@ class SettingsPage extends StatelessWidget {
 
   // Contoh fungsi logout placeholder
   void _handleLogout(BuildContext context) {
-    // TODO: Implementasi logika logout dan navigasi kembali ke LoginPage
+    // Implementasi logika logout dan navigasi kembali ke LoginPage
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Anda telah Logout (Placeholder)')),
     );

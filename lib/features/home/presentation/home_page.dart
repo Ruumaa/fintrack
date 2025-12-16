@@ -266,7 +266,7 @@ class DashboardContent extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: _buildTransactionItem(transaction),
               );
-            }).toList(),
+            }),
 
           const SizedBox(height: 50),
         ],

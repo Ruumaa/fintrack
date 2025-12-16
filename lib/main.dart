@@ -1,6 +1,5 @@
 import 'package:fintrack/features/auth/presentation/login_page.dart';
 import 'package:flutter/material.dart';
-// Import AppTheme yang baru
 import 'core/theme/app_theme.dart';
 
 void main() {
@@ -14,7 +13,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // Menggunakan tema yang sudah didefinisikan
       theme: AppTheme.light,
       home: const LoginPage(),
     );
