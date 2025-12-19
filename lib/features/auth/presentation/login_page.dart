@@ -1,6 +1,6 @@
-import 'package:fintrack/features/home/presentation/home_page.dart';
+import 'package:fintrack/features/auth/auth_service.dart';
+// import 'package:fintrack/features/home/presentation/home_page.dart';
 import 'package:flutter/material.dart';
-// Sesuaikan path import
 import 'register_page.dart';
 import '../../../core/theme/app_color.dart';
 
@@ -12,26 +12,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  // final TextEditingController usernameController = TextEditingController();
+  // final TextEditingController passwordController = TextEditingController();
 
-  String? errorMessage;
+  // void handleLogin() {
+  // String username = usernameController.text;
+  // String password = passwordController.text;
 
-  void handleLogin() {
-    String username = usernameController.text;
-    String password = passwordController.text;
+  // if (username == "admin" && password == "admin") {
+  //   Navigator.pushReplacement(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => const HomePage()),
+  //   );
+  // } else {
+  //   setState(() {
+  //     errorMessage = "Username atau password salah";
+  //   });
+  // }
 
-    if (username == "admin" && password == "admin") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
-    } else {
-      setState(() {
-        errorMessage = "Username atau password salah";
-      });
+  // }
+
+  // get auth srevice
+  final authService = AuthService();
+
+  // text controllers
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  // login button pressed
+  void login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    // attempt login..
+    try {
+      await authService.signInWithEmailPassword(email, password);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          errorMessage = "Username atau password salah";
+        });
+      }
     }
   }
+
+  String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -79,18 +104,28 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 32),
 
               // Input Username
+              // TextField(
+              //   controller: usernameController,
+              //   decoration: const InputDecoration(
+              //     hintText: "Username",
+              //     prefixIcon: Icon(Icons.person_outline),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
+
+              // Input Email
               TextField(
-                controller: usernameController,
+                controller: _emailController,
                 decoration: const InputDecoration(
-                  hintText: "Username",
-                  prefixIcon: Icon(Icons.person_outline),
+                  hintText: "Email",
+                  prefixIcon: Icon(Icons.email_outlined),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Input Password
               TextField(
-                controller: passwordController,
+                controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   hintText: "Password",
@@ -112,10 +147,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 30),
 
               // Tombol Login (menggunakan ElevatedButtonTheme)
-              ElevatedButton(
-                onPressed: handleLogin,
-                child: const Text("Login"),
-              ),
+              ElevatedButton(onPressed: login, child: const Text("Login")),
 
               const SizedBox(height: 16),
 
@@ -153,15 +185,12 @@ class _LoginPageState extends State<LoginPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  side: const BorderSide(
-                    color: Color(0xFFE5E7EB),
-                    width: 1.5,
-                  ), // border yang lebih halus
+                  side: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Menggunakan placeholder ikon Google (harus diganti dengan asset asli di aplikasi nyata)
+                    // Menggunakan placeholder ikon Google
                     Image.asset(
                       "assets/images/google-logo.png",
                       height: 24,
