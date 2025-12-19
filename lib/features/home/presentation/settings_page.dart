@@ -1,15 +1,23 @@
+import 'package:fintrack/features/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_color.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  SettingsPage({super.key});
 
-  // Contoh fungsi logout placeholder
-  void _handleLogout(BuildContext context) {
-    // Implementasi logika logout dan navigasi kembali ke LoginPage
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Anda telah Logout (Placeholder)')),
-    );
+  // void _handleLogout(BuildContext context) {
+  //   // Implementasi logika logout dan navigasi kembali ke LoginPage
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(content: Text('Anda telah Logout')),
+  //   );
+  // }
+
+  // get authservice
+  final authService = AuthService();
+
+  // logout function
+  void logout() async {
+    await authService.signOut();
   }
 
   @override
@@ -67,7 +75,8 @@ class SettingsPage extends StatelessWidget {
 
           // --- Tombol Logout (Warna Merah untuk Aksi Penting) ---
           ElevatedButton.icon(
-            onPressed: () => _handleLogout(context),
+            // onPressed: () => _handleLogout(context),
+            onPressed: logout,
             icon: const Icon(Icons.logout_rounded, color: AppColor.white),
             label: const Text(
               "Logout",

@@ -1,3 +1,4 @@
+import 'package:fintrack/features/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_color.dart';
 
@@ -10,9 +11,51 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _passController = TextEditingController();
-  final TextEditingController _confirmPassController = TextEditingController();
+  // final TextEditingController _userController = TextEditingController();
+  // final TextEditingController _passController = TextEditingController();
+  // final TextEditingController _confirmPassController = TextEditingController();
+
+  // get auth service
+  final authService = AuthService();
+
+  // text controllers
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  // sign up button pressed
+  void signUp() async {
+    // prepare data
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    // check if pasword & confirm password match
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Password dan Confirm Password tidak sesuai"),
+        ),
+      );
+      return;
+    }
+
+    // attempt sign up
+    try {
+      await authService.signUpWithEmailPassword(email, password);
+
+      // pop this register page
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +90,29 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 32),
 
-              // Input Username
+              // // Input Username
+              // TextField(
+              //   controller: _userController,
+              //   decoration: const InputDecoration(
+              //     hintText: "Username",
+              //     prefixIcon: Icon(Icons.person_outline),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
+
+              // Input Email
               TextField(
-                controller: _userController,
+                controller: _emailController,
                 decoration: const InputDecoration(
-                  hintText: "Username",
-                  prefixIcon: Icon(Icons.person_outline),
+                  hintText: "Email",
+                  prefixIcon: Icon(Icons.email_outlined),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Input Password
               TextField(
-                controller: _passController,
+                controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   hintText: "Password",
@@ -70,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
               // Input Confirm Password
               TextField(
-                controller: _confirmPassController,
+                controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   hintText: "Confirm Password",
@@ -82,13 +135,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 30),
 
-              // Tombol Register (menggunakan ElevatedButtonTheme)
-              ElevatedButton(
-                onPressed: () {
-                  //implement API register & validation
-                },
-                child: const Text("Register"),
-              ),
+              // Tombol Register
+              ElevatedButton(onPressed: signUp, child: const Text("Register")),
 
               const SizedBox(height: 24),
 
