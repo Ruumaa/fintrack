@@ -5,6 +5,7 @@ enum TransactionType { income, expense }
 
 class Transaction {
   final String id;
+  final String userId;
   final TransactionType type;
   final String category;
   final double amount;
@@ -14,6 +15,7 @@ class Transaction {
 
   Transaction({
     required this.id,
+    required this.userId,
     required this.type,
     required this.category,
     required this.amount,
@@ -22,24 +24,34 @@ class Transaction {
     required this.color,
   });
 
-  // Helper untuk membuat salinan dengan perubahan (immutable data)
-  Transaction copyWith({
-    String? id,
-    TransactionType? type,
-    String? category,
-    double? amount,
-    String? note,
-    DateTime? date,
-    Color? color,
-  }) {
+  // Konversi dari Map (Database) ke Object (Flutter)
+  factory Transaction.fromMap(Map<String, dynamic> map) {
     return Transaction(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      category: category ?? this.category,
-      amount: amount ?? this.amount,
-      note: note ?? this.note,
-      date: date ?? this.date,
-      color: color ?? this.color,
+      id: map['id'] ?? '',
+      userId: map['user_id'] ?? '',
+      type:
+          map['type'] == 'income'
+              ? TransactionType.income
+              : TransactionType.expense,
+      category: map['category'] ?? 'Lain-lain',
+      amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
+      note: map['note'] ?? '',
+      date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),
+      // Pastikan ini tidak null
+      color: map['color'] != null ? Color(map['color'] as int) : Colors.blue,
     );
+  }
+
+  // Konversi dari Object (Flutter) ke Map (Database)
+  Map<String, dynamic> toMap() {
+    return {
+      'user_id': userId,
+      'type': type == TransactionType.income ? 'income' : 'expense',
+      'category': category,
+      'amount': amount,
+      'note': note,
+      'date': date.toIso8601String(),
+      'color': color.value,
+    };
   }
 }

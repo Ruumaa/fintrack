@@ -1,18 +1,18 @@
-import 'package:fintrack/models/transaction_category.dart';
+import 'package:fintrack/features/home/presentation/widgets/dropdown_field.dart';
+import 'package:fintrack/features/home/presentation/widgets/transaction_type_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../core/theme/app_color.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../models/transaction.dart';
 
-// Definisi callback untuk mengirim transaksi baru
+import '../../../core/theme/app_color.dart';
+import '../../../../models/transaction.dart';
+import 'package:fintrack/models/transaction_category.dart';
+
 typedef AddTransactionCallback = void Function(Transaction newTransaction);
 
-// State Management untuk form
 class CreatePage extends StatefulWidget {
-  // Callback untuk mengirim data transaksi baru ke Home/Stateful Widget parent
   final AddTransactionCallback onAddTransaction;
-
   const CreatePage({super.key, required this.onAddTransaction});
 
   @override
@@ -20,270 +20,154 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-  // State Form
+  final _amountController = TextEditingController();
+  final _noteController = TextEditingController();
+
   TransactionType _selectedType = TransactionType.expense;
-  TransactionCategory _selectedCategory = expenseCategories.first;
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
+  late TransactionCategory _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
-  // Daftar kategori yang tersedia berdasarkan tipe
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = expenseCategories.first;
+  }
+
   List<TransactionCategory> get _availableCategories =>
       _selectedType == TransactionType.income
           ? incomeCategories
           : expenseCategories;
 
-  @override
-  void initState() {
-    super.initState();
-    // Inisialisasi kategori saat awal berdasarkan tipe default
-    _selectedCategory = _availableCategories.first;
+  void _handleTypeChange(TransactionType type) {
+    setState(() {
+      _selectedType = type;
+      _selectedCategory = _availableCategories.first;
+    });
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  // --- Fungsi Picker Tanggal ---
-  Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+  // Di dalam _CreatePageState
+  void _submitData() {
+    final amount = double.tryParse(
+      _amountController.text.replaceAll(RegExp(r'[^0-9]'), ''),
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
+    if (amount == null || amount <= 0) return;
 
-  // --- Fungsi Simpan Transaksi ---
-  void _submitTransaction() {
-    final double? amount = double.tryParse(
-      _amountController.text.replaceAll('.', '').replaceAll(',', ''),
-    );
+    // Ambil ID user dari Supabase Auth
+    final userId = Supabase.instance.client.auth.currentUser!.id;
 
-    if (amount == null || amount <= 0) {
-      // Tampilkan error jika jumlah tidak valid
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Jumlah transaksi tidak valid.')),
-      );
-      return;
-    }
-
-    final newTransaction = Transaction(
-      id: const Uuid().v4(), // Generate ID unik
+    final transaction = Transaction(
+      id: const Uuid().v4(),
+      userId: userId, // Kirim ID user
       type: _selectedType,
       category: _selectedCategory.name,
       amount: amount,
       note:
-          _noteController.text.trim().isEmpty
-              ? 'Tanpa Catatan'
-              : _noteController.text.trim(),
+          _noteController.text.isEmpty ? 'Tanpa Catatan' : _noteController.text,
       date: _selectedDate,
       color: _selectedCategory.color,
     );
 
-    // Kirim data transaksi ke parent widget melalui callback
-    widget.onAddTransaction(newTransaction);
-
-    // Tampilkan pesan sukses dan reset form
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Transaksi ${_selectedType == TransactionType.income ? "Pemasukan" : "Pengeluaran"} (${_selectedCategory.name}) berhasil ditambahkan.',
-        ),
-      ),
-    );
-
-    _resetForm();
-  }
-
-  // --- Fungsi Reset Form ---
-  void _resetForm() {
-    setState(() {
-      _selectedType = TransactionType.expense;
-      _selectedCategory = expenseCategories.first;
-      _amountController.clear();
-      _noteController.clear();
-      _selectedDate = DateTime.now();
-    });
-  }
-
-  // --- Widget Kategori Dropdown ---
-  Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<TransactionCategory>(
-      value: _selectedCategory,
-      decoration: const InputDecoration(
-        labelText: 'Kategori',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      items:
-          _availableCategories.map((category) {
-            return DropdownMenuItem(
-              value: category,
-              child: Row(
-                children: [
-                  Icon(category.icon, color: category.color),
-                  const SizedBox(width: 10),
-                  Text(category.name),
-                ],
-              ),
-            );
-          }).toList(),
-      onChanged: (TransactionCategory? newValue) {
-        if (newValue != null) {
-          setState(() {
-            _selectedCategory = newValue;
-          });
-        }
-      },
-    );
+    widget.onAddTransaction(transaction);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // --- 1. Pemilih Tipe Transaksi (Income/Expense) ---
-          Row(
-            children: [
-              Expanded(
-                child: ChoiceChip(
-                  label: const Text(
-                    'Pengeluaran 💸',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  selected: _selectedType == TransactionType.expense,
-                  selectedColor: AppColor.error.withValues(alpha: .1),
-                  onSelected: (selected) {
-                    if (selected) {
-                      setState(() {
-                        _selectedType = TransactionType.expense;
-                        _selectedCategory = expenseCategories.first;
-                      });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ChoiceChip(
-                  label: const Text(
-                    'Pemasukan 💰',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  selected: _selectedType == TransactionType.income,
-                  selectedColor: AppColor.secondary,
-                  onSelected: (selected) {
-                    if (selected) {
-                      setState(() {
-                        _selectedType = TransactionType.income;
-                        _selectedCategory = incomeCategories.first;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // --- 2. Kategori Dropdown ---
-          _buildCategoryDropdown(),
-
-          const SizedBox(height: 20),
-
-          // --- 3. Jumlah (Amount) Input ---
-          TextFormField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Jumlah Transaksi (misal: 50000)',
-              prefixText: 'Rp ',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tambah Transaksi')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            TransactionTypeSelector(
+              selectedType: _selectedType,
+              onSelected: _handleTypeChange,
             ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // --- 4. Catatan (Note) Input ---
-          TextFormField(
-            controller: _noteController,
-            maxLines: 2,
-            decoration: const InputDecoration(
-              labelText: 'Catatan (Opsional)',
-              hintText: 'Misal: Beli makan siang di Warkop',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+            const SizedBox(height: 20),
+            CategoryDropdownField(
+              value: _selectedCategory,
+              items: _availableCategories,
+              onChanged: (val) => setState(() => _selectedCategory = val!),
             ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // --- 5. Pemilih Tanggal ---
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Tanggal: ${DateFormat('dd MMMM yyyy').format(_selectedDate)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColor.textPrimary,
-                  ),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: _pickDate,
-                icon: const Icon(Icons.calendar_today_rounded),
-                label: const Text('Pilih Tanggal'),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 30),
-
-          // --- 6. Tombol Simpan ---
-          ElevatedButton(
-            onPressed: _submitTransaction,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.primary,
-              foregroundColor: AppColor.white,
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              _amountController,
+              'Jumlah',
+              prefix: 'Rp ',
+              isNumber: true,
             ),
-            child: const Text(
-              'Simpan Transaksi',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            const SizedBox(height: 20),
+            _buildTextField(
+              _noteController,
+              'Catatan (Opsional)',
+              hint: 'Makan siang',
             ),
+            const SizedBox(height: 20),
+            _buildDatePicker(),
+            const SizedBox(height: 30),
+            _buildSubmitButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper widget kecil yang masih bisa tetap di sini atau dipisah lagi jika sering dipakai
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    String? prefix,
+    String? hint,
+    bool isNumber = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixText: prefix,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Tanggal: ${DateFormat('dd MMM yyyy').format(_selectedDate)}'),
+        TextButton(
+          onPressed: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime.now(),
+            );
+            if (picked != null) setState(() => _selectedDate = picked);
+          },
+          child: const Text('Pilih Tanggal'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _submitData,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.primary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 50),
-        ],
+        ),
+        child: const Text(
+          'Simpan',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
       ),
     );
   }

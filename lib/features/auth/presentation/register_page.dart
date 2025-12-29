@@ -11,10 +11,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // final TextEditingController _userController = TextEditingController();
-  // final TextEditingController _passController = TextEditingController();
-  // final TextEditingController _confirmPassController = TextEditingController();
-
   // get auth service
   final authService = AuthService();
 
@@ -44,8 +40,15 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       await authService.signUpWithEmailPassword(email, password);
 
+      // Ini akan membuat session kembali menjadi null
+      await authService.signOut();
+
       // pop this register page
       if (mounted) {
+        // Beri notifikasi sukses
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Registrasi Berhasil! Silakan Login.")),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
@@ -90,16 +93,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 32),
 
-              // // Input Username
-              // TextField(
-              //   controller: _userController,
-              //   decoration: const InputDecoration(
-              //     hintText: "Username",
-              //     prefixIcon: Icon(Icons.person_outline),
-              //   ),
-              // ),
-              // const SizedBox(height: 16),
-
               // Input Email
               TextField(
                 controller: _emailController,
@@ -131,9 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 
-              const SizedBox(height: 10),
-
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
 
               // Tombol Register
               ElevatedButton(onPressed: signUp, child: const Text("Register")),
