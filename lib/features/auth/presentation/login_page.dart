@@ -1,5 +1,4 @@
 import 'package:fintrack/features/auth/auth_service.dart';
-// import 'package:fintrack/features/home/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 import 'register_page.dart';
 import '../../../core/theme/app_color.dart';
@@ -12,26 +11,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // final TextEditingController usernameController = TextEditingController();
-  // final TextEditingController passwordController = TextEditingController();
-
-  // void handleLogin() {
-  // String username = usernameController.text;
-  // String password = passwordController.text;
-
-  // if (username == "admin" && password == "admin") {
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(builder: (_) => const HomePage()),
-  //   );
-  // } else {
-  //   setState(() {
-  //     errorMessage = "Username atau password salah";
-  //   });
-  // }
-
-  // }
-
   // get auth srevice
   final authService = AuthService();
 
@@ -102,17 +81,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 32),
-
-              // Input Username
-              // TextField(
-              //   controller: usernameController,
-              //   decoration: const InputDecoration(
-              //     hintText: "Username",
-              //     prefixIcon: Icon(Icons.person_outline),
-              //   ),
-              // ),
-              // const SizedBox(height: 16),
-
               // Input Email
               TextField(
                 controller: _emailController,
