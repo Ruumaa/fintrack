@@ -66,10 +66,21 @@ class _HomePageState extends State<HomePage> {
           body = const Center(child: CircularProgressIndicator());
         } else {
           switch (_currentIndex) {
+            // home_page.dart
             case 0:
-              body = DashboardContent(
-                transactions: transactions,
-                userEmail: currentEmail,
+              body = StreamBuilder<Map<String, dynamic>>(
+                stream: AuthService().getProfileStream(), // Ambil stream profil
+                builder: (context, profileSnapshot) {
+                  final profileData = profileSnapshot.data;
+                  final username =
+                      profileData?['username']; // Ambil field username
+
+                  return DashboardContent(
+                    transactions: transactions,
+                    userEmail: currentEmail,
+                    username: username, // Kirim username ke dashboard
+                  );
+                },
               );
               break;
             case 1:
