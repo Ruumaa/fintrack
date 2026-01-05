@@ -51,6 +51,7 @@ class Transaction {
       'amount': amount,
       'note': note,
       'date': date.toIso8601String(),
+      // ignore: deprecated_member_use
       'color': color.value,
     };
   }

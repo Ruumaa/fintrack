@@ -1,16 +1,11 @@
 import 'package:fintrack/features/auth/auth_service.dart';
+import 'package:fintrack/features/home/presentation/setting/change_password_page.dart';
+import 'package:fintrack/features/home/presentation/setting/edit_profile_page.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_color.dart';
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({super.key});
-
-  // void _handleLogout(BuildContext context) {
-  //   // Implementasi logika logout dan navigasi kembali ke LoginPage
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text('Anda telah Logout')),
-  //   );
-  // }
 
   // get authservice
   final authService = AuthService();
@@ -43,12 +38,26 @@ class SettingsPage extends StatelessWidget {
           _buildSettingItem(
             icon: Icons.person_outline_rounded,
             title: "Edit Profil",
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditProfilePage(),
+                ),
+              );
+            },
           ),
           _buildSettingItem(
             icon: Icons.lock_outline_rounded,
             title: "Ubah Kata Sandi",
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChangePasswordPage(),
+                ),
+              );
+            },
           ),
           _buildSettingItem(
             icon: Icons.notifications_none_rounded,

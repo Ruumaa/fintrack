@@ -7,19 +7,26 @@ import '../../../../core/theme/app_color.dart';
 class DashboardContent extends StatelessWidget {
   final List<Transaction> transactions;
   final String userEmail;
+  final String? username;
 
   const DashboardContent({
     super.key,
     required this.transactions,
     required this.userEmail,
+    this.username,
   });
 
   @override
   Widget build(BuildContext context) {
-    // display user email
-    final rawName =
-        userEmail.contains('@') ? userEmail.split('@')[0] : userEmail;
-    final displayName = rawName[0].toUpperCase() + rawName.substring(1);
+    // Gunakan username jika ada, jika tidak gunakan fallback email
+    String displayName;
+    if (username != null && username!.isNotEmpty) {
+      displayName = username!;
+    } else {
+      final rawName =
+          userEmail.contains('@') ? userEmail.split('@')[0] : userEmail;
+      displayName = rawName[0].toUpperCase() + rawName.substring(1);
+    }
 
     final today = DateTime.now();
 
